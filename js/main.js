@@ -24,18 +24,33 @@ function logError(error) {
   console.log('Looks like there was a problem:', error);
 }
 
+function validateResponse(response) {
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  
+  return response;
+}
+
+function readResponseAsJSON(response) {
+  return response.json();
+}
 
 // Fetch JSON ----------
 
 function fetchJSON() {
   fetch("examples/animals.json")
+    .then(validateResponse)
+    .then(readResponseAsJSON)
     .then(logResult)
     .catch(logError);
 }
 
+// same as fetchJSON, written using async / await for practice
 async function fetchJSON_async() {
   try {
     const response = await fetch("examples/animals.json");
+    validateResponse(response);
     logResult(response);
   } catch(err) {
     logError(err);
@@ -43,7 +58,7 @@ async function fetchJSON_async() {
 }
 
 const jsonButton = document.getElementById('json-btn');
-jsonButton.addEventListener('click', fetchJSON_async);
+jsonButton.addEventListener('click', fetchJSON);
 
 
 // Fetch Image ----------

@@ -20,6 +20,18 @@ function logResult(result) {
   console.log(result);
 }
 
+function logHeaders(response) {
+  for (var pair of response.headers.entries()) {
+    console.log(`${pair[0]} - ${pair[1]}`);
+  }
+  return response;
+}
+
+function logContentSize(response) {
+  const size = response.headers.get("content-length");
+  console.log(`content size: ${size} bytes`);
+  return response;
+}
 function logError(error) {
   console.log('Looks like there was a problem:', error);
 }
@@ -28,7 +40,6 @@ function validateResponse(response) {
   if (!response.ok) {
     throw Error(response.statusText);
   }
-  
   return response;
 }
 
@@ -110,7 +121,11 @@ textButton.addEventListener('click', fetchText);
 // HEAD request ----------
 
 function headRequest() {
-  // TODO
+  fetch("examples/words.txt", { method: "HEAD" })
+    .then(validateResponse)
+    .then(logHeaders)
+    .then(logContentSize)
+    .catch(logError);
 }
 const headButton = document.getElementById('head-btn');
 headButton.addEventListener('click', headRequest);

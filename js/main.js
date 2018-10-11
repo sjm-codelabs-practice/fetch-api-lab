@@ -135,9 +135,11 @@ headButton.addEventListener('click', headRequest);
 
 /* NOTE: Never send unencrypted user credentials in production! */
 function postRequest() {
+  const formData = new FormData(document.getElementById('msg-form'));
+
   fetch("http://localhost:5000", {
     method: "POST",
-    body: "name=david&message=hello"
+    body: formData
   })
     .then(validateResponse)
     .then(readResponseAsText)

@@ -20,16 +20,74 @@ function logResult(result) {
   console.log(result);
 }
 
+function logHeaders(response) {
+  for (var pair of response.headers.entries()) {
+    console.log(`${pair[0]} - ${pair[1]}`);
+  }
+  return response;
+}
+
+function logContentSize(response) {
+  const size = response.headers.get("content-length");
+  console.log(`content size: ${size} bytes`);
+  return response;
+}
 function logError(error) {
   console.log('Looks like there was a problem:', error);
 }
 
+function validateResponse(response) {
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  return response;
+}
 
+function readResponseAsJSON(response) {
+  return response.json();
+}
+
+function showImage(responseAsBlob) {
+  const container = document.getElementById('img-container');
+  const imgElem = document.createElement("img");
+  container.appendChild(imgElem);
+  const imgUrl = URL.createObjectURL(responseAsBlob);
+  imgElem.src = imgUrl;
+}
+
+function readResponseAsBlob(response) {
+  return response.blob();
+}
+
+function readResponseAsText(response) {
+  return response.text();
+}
+
+function showText(responseAsText) {
+  const message = document.getElementById("message");
+  message.textContent = responseAsText;
+}
 // Fetch JSON ----------
 
 function fetchJSON() {
-  // TODO
+  fetch("examples/animals.json")
+    .then(validateResponse)
+    .then(readResponseAsJSON)
+    .then(logResult)
+    .catch(logError);
 }
+
+// same as fetchJSON, written using async / await for practice
+async function fetchJSON_async() {
+  try {
+    const response = await fetch("examples/animals.json");
+    validateResponse(response);
+    logResult(response);
+  } catch(err) {
+    logError(err);
+  }
+}
+
 const jsonButton = document.getElementById('json-btn');
 jsonButton.addEventListener('click', fetchJSON);
 
@@ -37,7 +95,11 @@ jsonButton.addEventListener('click', fetchJSON);
 // Fetch Image ----------
 
 function fetchImage() {
-  // TODO
+  fetch("examples/fetching.jpg")
+    .then(validateResponse)
+    .then(readResponseAsBlob)
+    .then(showImage)
+    .catch(logError);
 }
 const imgButton = document.getElementById('img-btn');
 imgButton.addEventListener('click', fetchImage);
@@ -46,7 +108,11 @@ imgButton.addEventListener('click', fetchImage);
 // Fetch text ----------
 
 function fetchText() {
-  // TODO
+  fetch("examples/words.txt")
+    .then(validateResponse)
+    .then(readResponseAsText)
+    .then(showText)
+    .catch(logError);
 }
 const textButton = document.getElementById('text-btn');
 textButton.addEventListener('click', fetchText);
@@ -55,7 +121,11 @@ textButton.addEventListener('click', fetchText);
 // HEAD request ----------
 
 function headRequest() {
-  // TODO
+  fetch("examples/words.txt", { method: "HEAD" })
+    .then(validateResponse)
+    .then(logHeaders)
+    .then(logContentSize)
+    .catch(logError);
 }
 const headButton = document.getElementById('head-btn');
 headButton.addEventListener('click', headRequest);
@@ -65,7 +135,22 @@ headButton.addEventListener('click', headRequest);
 
 /* NOTE: Never send unencrypted user credentials in production! */
 function postRequest() {
-  // TODO
+  // const formData = new FormData(document.getElementById('msg-form'));
+
+  const messageHeaders = new Headers();
+  messageHeaders.set("Content-Type", "application/json");
+  messageHeaders.set("X-CUSTOM", "545");
+  messageHeaders.set("Y-Custom", "546");
+
+  fetch("http://localhost:5000", {
+    method: "POST",
+    headers: messageHeaders,
+    body: JSON.stringify({ lab: "fetch", status: "fun" })
+  })
+    .then(validateResponse)
+    .then(readResponseAsText)
+    .then(showText)
+    .catch(logError);
 }
 const postButton = document.getElementById('post-btn');
 postButton.addEventListener('click', postRequest);

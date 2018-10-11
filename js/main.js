@@ -28,10 +28,22 @@ function logError(error) {
 // Fetch JSON ----------
 
 function fetchJSON() {
-  // TODO
+  fetch("examples/animals.json")
+    .then(logResult)
+    .catch(logError);
 }
+
+async function fetchJSON_async() {
+  try {
+    const response = await fetch("examples/animals.json");
+    logResult(response);
+  } catch(err) {
+    logError(err);
+  }
+}
+
 const jsonButton = document.getElementById('json-btn');
-jsonButton.addEventListener('click', fetchJSON);
+jsonButton.addEventListener('click', fetchJSON_async);
 
 
 // Fetch Image ----------
